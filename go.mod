@@ -3,6 +3,7 @@ module terraform-provider-aws-download
 go 1.17
 
 require (
+	github.com/aws/aws-sdk-go-v2 v1.14.0
 	github.com/aws/aws-sdk-go-v2/config v1.14.0
 	github.com/aws/aws-sdk-go-v2/credentials v1.9.0
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.25.0
@@ -13,7 +14,6 @@ require (
 require (
 	github.com/agext/levenshtein v1.2.2 // indirect
 	github.com/apparentlymart/go-textseg v1.0.0 // indirect
-	github.com/aws/aws-sdk-go-v2 v1.14.0 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.3.0 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.11.0 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.1.5 // indirect
