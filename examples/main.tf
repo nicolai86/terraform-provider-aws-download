@@ -26,7 +26,7 @@ variable "s3_uri" {
 locals {
   s3_parts  = split("/", var.s3_uri)
   s3_bucket = local.s3_parts[2]
-  s3_key    = "/${join("/", slice(local.s3_parts, 3, length(local.s3_parts)))}"
+  s3_key    = join("/", slice(local.s3_parts, 3, length(local.s3_parts)))
 }
 
 data "aws-download_s3_object" "example" {
