@@ -17,19 +17,19 @@ func dataSourceAwsS3DownloadObject() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceAwsS3DownloadObjectRead,
 		Schema: map[string]*schema.Schema{
-			"id": &schema.Schema{
-				Type:     schema.TypeInt,
-				Required: true,
+			"id": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
-			"bucket": &schema.Schema{
+			"bucket": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"key": &schema.Schema{
+			"key": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"filename": &schema.Schema{
+			"filename": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
@@ -42,12 +42,7 @@ func dataSourceAwsS3DownloadObjectRead(ctx context.Context, d *schema.ResourceDa
 
 	bucket := d.Get("bucket").(string)
 	key := d.Get("key").(string)
-
-	input := s3.HeadObjectInput{
-		Bucket: aws.String(bucket),
-		Key:    aws.String(key),
-	}
-	log.Printf("[DEBUG] Reading S3 Object: %s", input)
+	log.Printf("[DEBUG] reading S3 Object (%s) Bucket (%s)", key, bucket)
 	out, err := conn.GetObject(ctx, &s3.GetObjectInput{
 		Bucket: aws.String(bucket),
 		Key:    aws.String(key),

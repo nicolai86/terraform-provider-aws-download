@@ -1,9 +1,9 @@
 TEST?=$$(go list ./... | grep -v 'vendor')
-HOSTNAME=hashicorp.com
-NAMESPACE=edu
+HOSTNAME=github.com
+NAMESPACE=nicolai86
 NAME=aws-download
 BINARY=terraform-provider-${NAME}
-VERSION=0.0.1
+VERSION=0.0.5
 OS_ARCH=darwin_amd64
 
 default: install

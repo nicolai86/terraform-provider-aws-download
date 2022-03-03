@@ -2,13 +2,11 @@ package aws_download
 
 import (
 	"context"
-	"fmt"
+	"log"
 	"regexp"
 
-	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/aws/aws-sdk-go-v2/service/sts"
+	awsbase "github.com/hashicorp/aws-sdk-go-base/v2"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -21,16 +19,19 @@ func Provider() *schema.Provider {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "AWS Region",
+				DefaultFunc: schema.EnvDefaultFunc("AWS_REGION", "us-west-2"),
 			},
 			"role_arn": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "Amazon Resource Name of an IAM Role to assume prior to making API calls.",
+				DefaultFunc: schema.EnvDefaultFunc("AWS_ROLE_ARN", nil),
 			},
 			"session_name": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "An identifier for the assumed role session.",
+				DefaultFunc: schema.EnvDefaultFunc("AWS_SESSION_NAME", "terraform"),
 				ValidateFunc: validation.All(
 					validation.StringLenBetween(2, 64),
 					validation.StringMatch(regexp.MustCompile(`[\w+=,.@\-]*`), ""),
@@ -57,28 +58,22 @@ type AWSClient struct {
 
 func (c *Config) Client(ctx context.Context) (interface{}, diag.Diagnostics) {
 	// runs with credentials provided in ENV
-	cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion(c.region))
-	if err != nil {
-		return nil, diag.FromErr(fmt.Errorf("unable to load AWS config: %w", err))
+	basecfg := awsbase.Config{
+		AssumeRole: &awsbase.AssumeRole{
+			RoleARN:     c.roleArn,
+			SessionName: c.sessionName,
+		},
+		Region: c.region,
 	}
-
-	stsClient := sts.New(sts.Options{
-		Credentials: cfg.Credentials,
-	})
-	resp, err := stsClient.AssumeRole(ctx, &sts.AssumeRoleInput{
-		RoleArn:         &c.roleArn,
-		RoleSessionName: &c.sessionName,
-	})
+	cfg, err := awsbase.GetAwsConfig(ctx, &basecfg)
 	if err != nil {
-		return nil, diag.Errorf("unable to assume role (%s): %w", c.roleArn, err)
+		return nil, diag.Errorf("error configuring Terraform AWS Provider: %s", err)
 	}
+	log.Println("[INFO] got AWS aconfig")
 
 	// runs with assumed role
 	client := &AWSClient{
-		S3Conn: s3.New(s3.Options{
-			Credentials: credentials.NewStaticCredentialsProvider(*resp.Credentials.AccessKeyId, *resp.Credentials.SecretAccessKey, *resp.Credentials.SessionToken),
-			Region:      c.region,
-		}),
+		S3Conn: s3.NewFromConfig(cfg),
 	}
 	return client, nil
 }
