@@ -39,7 +39,7 @@ func Provider() *schema.Provider {
 		},
 		ResourcesMap: map[string]*schema.Resource{},
 		DataSourcesMap: map[string]*schema.Resource{
-			"aws_download_s3_object": dataSourceAwsS3DownloadObject(),
+			"aws-download_s3_object": dataSourceAwsS3DownloadObject(),
 		},
 		ConfigureContextFunc: providerConfigure,
 	}
