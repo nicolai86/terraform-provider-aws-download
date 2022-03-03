@@ -23,15 +23,15 @@ func dataSourceAwsS3DownloadObject() *schema.Resource {
 			},
 			"bucket": &schema.Schema{
 				Type:     schema.TypeString,
-				Computed: false,
+				Required: true,
 			},
 			"key": &schema.Schema{
 				Type:     schema.TypeString,
-				Computed: false,
+				Required: true,
 			},
 			"filename": &schema.Schema{
 				Type:     schema.TypeString,
-				Computed: false,
+				Required: true,
 			},
 		},
 	}
